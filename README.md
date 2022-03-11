@@ -1,3 +1,7 @@
 # web server with Thead Pool
 
-## run 
+## run it
+
+```
+cargo run 
+```
