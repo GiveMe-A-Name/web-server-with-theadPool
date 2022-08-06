@@ -1,6 +1,7 @@
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};
+
 type Job = Box<dyn FnOnce() + 'static + Send>;
 type SafeReceiver = Arc<Mutex<Receiver<Job>>>;
 
@@ -36,6 +37,8 @@ impl ThreadPool {
         assert!(size > 0);
 
         let mut threads = Vec::with_capacity(size);
+        // Multi-producer, single-consumer
+        // receiver is single
         let (sender, receiver) = mpsc::channel(); // new channel
         let receiver = Arc::new(Mutex::new(receiver));
 
@@ -58,6 +61,7 @@ impl ThreadPool {
         self.sender.send(job).unwrap();
     }
 }
+
 impl Drop for ThreadPool {
     // destroy the worker,when thread-pool leave scope.
     fn drop(&mut self) {
